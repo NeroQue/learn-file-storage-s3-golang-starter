@@ -2,19 +2,14 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/database"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 func (cfg apiConfig) ensureAssetsDir() error {
@@ -25,39 +20,7 @@ func (cfg apiConfig) ensureAssetsDir() error {
 }
 
 func (cfg apiConfig) getObjectURL(key string) string {
-	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", cfg.s3Bucket, cfg.s3Region, key)
-}
-
-func generatePresignedURL(s3Client *s3.Client, bucket, key string, expireTime time.Duration) (string, error) {
-	client := s3.NewPresignClient(s3Client)
-	object, err := client.PresignGetObject(context.TODO(), &s3.GetObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
-	}, s3.WithPresignExpires(expireTime))
-	if err != nil {
-		return "", err
-	}
-	return object.URL, nil
-}
-
-func (cfg *apiConfig) DBVideoToSignedVideo(video database.Video) (database.Video, error) {
-	if video.VideoURL == nil {
-		return video, nil
-	}
-
-	split := strings.Split(*video.VideoURL, ",")
-	if len(split) < 2 {
-		return video, fmt.Errorf("invalid video URL format")
-	}
-
-	bucket := split[0]
-	key := split[1]
-	url, err := generatePresignedURL(cfg.s3Client, bucket, key, 5*time.Minute)
-	if err != nil {
-		return video, err
-	}
-	video.VideoURL = &url
-	return video, nil
+	return fmt.Sprintf("https://d3emfweo15k14y.cloudfront.net/%s", key)
 }
 
 func getAssetPath(mediaType string) string {

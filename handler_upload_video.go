@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/auth"
@@ -111,9 +110,7 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 		respondWithError(w, http.StatusInternalServerError, "Couldn't upload file", err)
 		return
 	}
-	//url := cfg.getObjectURL(key)
-	//video.VideoURL = &url
-	url := fmt.Sprintf("%s,%s", cfg.s3Bucket, key)
+	url := cfg.getObjectURL(key)
 	video.VideoURL = &url
 
 	err = cfg.db.UpdateVideo(video)
@@ -122,11 +119,5 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	dbvideo, err := cfg.DBVideoToSignedVideo(video)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't get video", err)
-		return
-	}
-
-	respondWithJSON(w, http.StatusOK, dbvideo)
+	respondWithJSON(w, http.StatusOK, video)
 }
