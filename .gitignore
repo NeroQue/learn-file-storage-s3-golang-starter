@@ -4,3 +4,5 @@ out
 assets/
 samples/
 .idea/
+aws/
+*.zip
